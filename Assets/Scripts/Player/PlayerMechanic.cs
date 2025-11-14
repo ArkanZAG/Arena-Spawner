@@ -1,18 +1,23 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
     public class PlayerMechanic : MonoBehaviour
     {
         [SerializeField] private Rigidbody playerRigidBody;
+        [SerializeField] private Transform mainCamera;
+        
         [SerializeField] private int playerSpeed;
         [SerializeField] private int playerRunSpeed;
         [SerializeField] private int playerJumpHeight;
-        [SerializeField] private Transform mainCamera;
+        [SerializeField] private float maxWallRunDuration;
+        [SerializeField] private float wallRunDuration;
+        
 
         [SerializeField] private bool isGrounded;
-        [SerializeField] private bool isWalled;
+        [SerializeField] private bool isOnTheWall;
         
         private void Start()
         {
@@ -24,6 +29,7 @@ namespace Player
         {
             Movement();
             Jump();
+            WallRun();
             Sprint();
         }
 
@@ -69,16 +75,16 @@ namespace Player
             }
         }
 
-        private void WallJump()
+        private void WallRun()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (isOnTheWall == true && wallRunDuration < maxWallRunDuration)
             {
-                if (isWalled == true)
-                {
-                    playerRigidBody.linearVelocity = new Vector3(playerRigidBody.linearVelocity.x, playerJumpHeight,
-                        playerRigidBody.linearVelocity.z);
-                    isWalled = false;
-                }
+                wallRunDuration += Time.deltaTime;
+            }
+            else
+            {
+                wallRunDuration = 0;
+                isOnTheWall = false;
             }
         }
 
@@ -95,6 +101,11 @@ namespace Player
             if (other.gameObject.tag == "Ground")
             {
                 isGrounded = true;
+            }
+
+            if (other.gameObject.tag == "Wall")
+            {
+                isOnTheWall = true;
             }
         }
     }

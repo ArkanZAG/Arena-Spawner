@@ -8,16 +8,22 @@ namespace Player
     {
         [SerializeField] private Rigidbody playerRigidBody;
         [SerializeField] private Transform mainCamera;
-        
+        [Header("Player Base Movement Stats")]
         [SerializeField] private int playerSpeed;
         [SerializeField] private int playerRunSpeed;
         [SerializeField] private int playerJumpHeight;
+        [Header("Player Wall Run Stats")]
+        [SerializeField] private int playerWallRunSpeed;
         [SerializeField] private float maxWallRunDuration;
+        [SerializeField] private float wallRunGravity;
         [SerializeField] private float wallRunDuration;
+        
         
 
         [SerializeField] private bool isGrounded;
         [SerializeField] private bool isOnTheWall;
+
+        private Vector3 wallNormal;
         
         private void Start()
         {
@@ -31,6 +37,7 @@ namespace Player
             Jump();
             WallRun();
             Sprint();
+            CheckWall();
         }
 
         private void Movement()
@@ -49,6 +56,7 @@ namespace Player
             right.Normalize();
 
             var moveDirection = (forward * verticalInput + right * horizontalInput).normalized * playerSpeed;
+            
             if (horizontalInput != 0 || verticalInput != 0)
             {
                 playerRigidBody.linearVelocity =
@@ -77,15 +85,52 @@ namespace Player
 
         private void WallRun()
         {
-            if (isOnTheWall == true && wallRunDuration < maxWallRunDuration)
+            if (!isGrounded && isOnTheWall && wallRunDuration < maxWallRunDuration)
             {
                 wallRunDuration += Time.deltaTime;
+
+                var direction = GetWallRunDirection();
+
+                playerRigidBody.linearVelocity = direction * playerWallRunSpeed + Vector3.up * wallRunGravity;
+                
+                playerRigidBody.AddForce(wallNormal * 5f, ForceMode.Acceleration);
             }
             else
             {
                 wallRunDuration = 0;
-                isOnTheWall = false;
             }
+        }
+
+        private void CheckWall()
+        {
+            RaycastHit hit;
+
+            if (Physics.Raycast(transform.position, transform.right, out hit, 1f))
+            {
+                wallNormal = hit.normal;
+                isOnTheWall = true;
+            }else if (Physics.Raycast(transform.position, -transform.right, out hit, 1f))
+            {
+                wallNormal = hit.normal;
+                isOnTheWall = true;
+            }
+            else
+            {
+                isOnTheWall = false;
+                wallRunDuration = 0;
+            }
+        }
+
+        private Vector3 GetWallRunDirection()
+        {
+            var wallForward = Vector3.Cross(wallNormal, Vector3.up);
+
+            if (Vector3.Dot(wallNormal, transform.forward) < 0)
+            {
+                wallForward = -wallForward;
+            }
+
+            return wallForward;
         }
 
         private void Sprint()

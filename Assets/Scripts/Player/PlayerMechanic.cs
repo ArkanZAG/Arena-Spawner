@@ -38,6 +38,7 @@ namespace Player
             WallRun();
             Sprint();
             CheckWall();
+            
         }
 
         private void Movement()
@@ -105,11 +106,11 @@ namespace Player
         {
             RaycastHit hit;
 
-            if (Physics.Raycast(transform.position, transform.right, out hit, 1f))
+            if (Physics.Raycast(transform.position, transform.right, out hit, 0.1f))
             {
                 wallNormal = hit.normal;
                 isOnTheWall = true;
-            }else if (Physics.Raycast(transform.position, -transform.right, out hit, 1f))
+            }else if (Physics.Raycast(transform.position, -transform.right, out hit, 0.1f))
             {
                 wallNormal = hit.normal;
                 isOnTheWall = true;

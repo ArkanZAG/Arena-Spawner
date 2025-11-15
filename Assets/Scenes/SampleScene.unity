@@ -694,7 +694,9 @@ MonoBehaviour:
   playerSpeed: 5
   playerRunSpeed: 5
   playerJumpHeight: 5
+  playerWallRunSpeed: 6
   maxWallRunDuration: 5
+  wallRunGravity: 0.3
   wallRunDuration: 0
   isGrounded: 0
   isOnTheWall: 0
